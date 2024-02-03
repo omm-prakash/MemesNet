@@ -32,7 +32,7 @@ def detect_text(path):
     return text, group[0], image[0]
 
 def parser():
-    parser = argparse.ArgumentParser(description='The code help reading text from image.')
+    parser = argparse.ArgumentParser(description='This code helps in reading text from image.')
     parser.add_argument('--directory', type=str, default="./data/hateful_memes/img/", help='Path of folder having all images.')
     parser.add_argument('--file', type=str, default=None, help='Image file path.')
     parser.add_argument('--draw_anno', type=bool, default=False, help='Check for if to draw annotations.')
@@ -42,8 +42,8 @@ def parser():
     args = parser.parse_args()
     return args
 
-if __name__ == '__main__':
-    args = parser()
+def extract_text(args):
+    print('\n>> Loading test image..')
     if args.file is not None:
         f = os.path.join(args.directory, args.file)
     elif args.pick_random:
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     else:
         print('Please pass name of image file or allow random pick of image.')
     print('\n>> Image location:',f)
-    print('>> Detecting text from the image..')
+    print('>> Extracting text from the image..')
     text, locations, image = detect_text(f)
 
     if args.plot:
@@ -63,3 +63,7 @@ if __name__ == '__main__':
     if args.draw_anno:
         keras_ocr.tools.drawAnnotations(image=image, predictions=locations)
     plt.show()
+
+if __name__ == '__main__':
+    args = parser()
+    extract_text(args)
