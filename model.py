@@ -10,6 +10,16 @@ class Embedding(nn.Module):
         def forward(self, x):
                 return self.embedding(x)*torch.sqrt(torch.tensor(self.d_model, dtype=torch.int64, requires_grad=False)) # (batch, seq_len, d_model)
         
+class ImageEmbedding(nn.Module):
+        def __init__(self, features:int, d_model:int, dropout:float) -> None:
+                super().__init__()
+                self.embedding = nn.Linear(features, d_model)
+                self.dropout = nn.Dropout(dropout)
+                self.relu = nn.ReLU()
+
+        def forward(self, x):
+                return self.dropout(self.embedding(x)) # (batch, seq_len, d_model)
+
 class PositionEmbedding(nn.Module):
         def __init__(self, d_model:int, dropout:float, seq_len:int) -> None:
                 super().__init__()
@@ -57,7 +67,7 @@ class MultiHeadAttention(nn.Module):
                 score = self.softmax(score) # (batch, head, seq_len, seq_len)
                 
                 x = score @ V # (batch, head, seq_len, kd)                
-                x = x.transpose(1,2).contingious().view(x.shape[0],-1,self.d_model) # (batch, seq_len, d_model)
+                x = x.transpose(1,2).contiguous().view(x.shape[0],-1,self.d_model) # (batch, seq_len, d_model)
                 return self.Wo(x) # (batch, seq_len, d_model)
 
 class FeedForward(nn.Module):
@@ -116,13 +126,14 @@ class CrossModalityEncoderBlock(nn.Module):
                 self.residual2 = ResidualConnection(drop)
                 
         def forward(self, x, y, mask, drop_encoder_y=False):
-                x_ = self.residual1(x,lambda x: self.cross_attention1(x,y,y,mask)).detach()
-                x_ = self.encoder1(x_,mask)
+                x_ = x.clone()
+                x = self.residual1(x,lambda x: self.cross_attention1(x,y,y,mask))
+                x = self.encoder1(x,mask)
 
                 if not drop_encoder_y:
-                        y = self.residual2(y,lambda y: self.cross_attention1(y,x,x,mask))
+                        y = self.residual2(y,lambda y: self.cross_attention2(y,x_,x_,mask))
                         y = self.encoder2(y,mask)
-                return x_,y # (batch, seq_len, d_model), (batch, seq_len, d_model)
+                return x,y # (batch, seq_len, d_model), (batch, seq_len, d_model)
         
 class SingleModalityEncoder(nn.Module):
         def __init__(self, N:int, drop:float, d_model:int, head:int) -> None:
@@ -145,20 +156,19 @@ class CrossModalityEncoder(nn.Module):
                 for i in range(self.n-1):
                         x,y = self.cross_modality_encoder[i](x,y,mask)
                 x,y = self.cross_modality_encoder[-1](x,y,mask,drop_encoder_y=True)
-
                 return x,y # (batch, seq_len, d_model), (batch, seq_len, d_model)
 
 class Projection(nn.Module):
-        def __init__(self, d_model:int, seq_len:int) -> None:
+        def __init__(self, d_model:int, seq_len:int, num_classes:int) -> None:
                 super().__init__()
                 self.linear1 = nn.Linear(d_model, 1)
-                self.linear2 = nn.Linear(seq_len, 2)
+                self.linear2 = nn.Linear(seq_len, num_classes)
 
         def forward(self, x):
                 x = self.linear1(x) # (batch, seq_len, 1)
                 x = x.squeeze(dim=-1) # (batch, seq_len)
-                x = self.linear2(x) # (batch, 2)
-                return x # (batch, 2)
+                x = nn.functional.softmax(self.linear2(x), dim=-1) # (batch, num_classes)
+                return x # (batch, num_classes)
 
 class MemesNet(nn.Module):
         def __init__(self, 
@@ -166,48 +176,52 @@ class MemesNet(nn.Module):
                      n_cross:int,
                      d_model:int,
                      vocab_size:int,
-                     img_vocab_size:int, 
+                     image_features:int, 
                      dropout:float, 
                      head:int,
-                     seq_len:int) -> None:
+                     seq_len:int,
+                     num_classes:int) -> None:
                 super().__init__()
                 self.text_embedding = Embedding(d_model, vocab_size)
                 self.pos_embedding = PositionEmbedding(d_model, dropout, seq_len)
-                self.img_embedding = Embedding(d_model, img_vocab_size)
+                self.img_embedding = ImageEmbedding(image_features, d_model, dropout)
 
                 self.img_encoder = SingleModalityEncoder(n_single, dropout, d_model, head) 
                 self.text_encoder = SingleModalityEncoder(n_single, dropout, d_model, head)
                 self.cross_encoder = CrossModalityEncoder(n_cross, dropout, d_model, head)
                 
-                self.projection = Projection(d_model, seq_len)
+                self.projection = Projection(d_model, seq_len, num_classes)
 
-        def forward(self, x, y, mask):
+        def forward(self, x, y, text_mask, img_mask):
                 x = self.text_embedding(x) # (batch, seq_len, d_model)
                 x = self.pos_embedding(x) # (batch, seq_len, d_model)
-                x = self.text_encoder(x) # (batch, seq_len, d_model)
+                x = self.text_encoder(x,text_mask) # (batch, seq_len, d_model)
                 
                 y = self.img_embedding(y) # (batch, seq_len, d_model)
-                y = self.img_encoder(y) # (batch, seq_len, d_model)
+                y = self.img_encoder(y,img_mask) # (batch, seq_len, d_model)
 
-                x,_ = self.cross_encoder(x,y,mask) # (batch, seq_len, d_model)
-                x = self.projection(x) # (batch, 2)
-                return x # (batch, 2)
+                x,_ = self.cross_encoder(x,y,mask=None) # (batch, seq_len, d_model)
+                x = self.projection(x) # (batch, num_classes)
+
+                return x # (batch, num_classes)
 
 
-def memesnet(n_single:int,
-             n_cross:int,
-             d_model:int,
-             vocab_size:int,
-             img_vocab_size:int, 
-             dropout:float, 
-             head:int,
-             seq_len:int):
+def memesnet(vocab_size:int,
+             seq_len:int,
+             n_single:int=1,
+             n_cross:int=2,
+             d_model=256,
+             image_features:int=6, 
+             dropout:float=0.1, 
+             head:int=8,
+             num_classes:int=2):
         
-        model = MemesNet(n_single,n_cross,d_model,vocab_size,img_vocab_size,dropout,head,seq_len)
+        model = MemesNet(n_single,n_cross,d_model,vocab_size,image_features,dropout,head,seq_len,num_classes)
 
         # initilize the model parameters
         for param in model.parameters():
                 if param.dim()>1:
+                        # nn.init.normal_(param)
                         nn.init.xavier_uniform_(param)
 
         return model
