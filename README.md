@@ -96,10 +96,10 @@ python train.py
 Ensure that you have updated the necessary configurations in the `config.yml` file before starting the training process.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+The project has not been licensed till now.
 
 ## Acknowledgements
-Give credit to any resources, libraries, or tools that you used or were inspired by during the development of this project.
+The cross-modality encoder part is referred from [LXMERT](https://arxiv.org/abs/1908.07490). 
 
 ## Contact
 Please contact me at ommprakash.sahoo.eee20@iitbhu.ac.in for any query related to the code.
