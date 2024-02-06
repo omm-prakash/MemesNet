@@ -28,15 +28,16 @@ To ensure a consistent environment, it is recommended to use conda for managing 
 ### Dataset Download
 Download the dataset from [Hateful Memes Challenge](https://hatefulmemeschallenge.com/#download) and follow the steps below to organize your project structure:
 
-1. Create a `data` directory in the project root:
+1. Move to the `data` directory from the project root:
    ```bash
-   mkdir data
+   cd ./data
    ```
 
 2. Save the downloaded dataset file into the `data` directory.
 
 3. Unzip the dataset:
    ```bash
+   cd ..
    unzip data/your-dataset.zip -d data/
    ```
 
