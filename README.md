@@ -1,9 +1,8 @@
 # MemesNet
-A Multi-Modality Deep Learning Model To Detect Hateful Memes. The code is submitted as a solution to the task from Prof. Ponnurangam Kumaraguru's [Precog Lab](https://precog.iiit.ac.in/) @IIIT Hyderabad. 
-The [Hateful Memes Challenge](https://hatefulmemeschallenge.com/#download) and Dataset have been developed to advance research in identifying harmful multimodal content, particularly focusing on the challenging task of recognizing multimodal hate speech, which combines different modalities such as text and images. This unique dataset, created by Facebook AI, consists of over 10,000 new multimodal examples, incorporating content licensed from Getty Images to provide a diverse and comprehensive resource for AI researchers.
+A multi-modality deep learning model to detect hateful memes. The code is submitted as a solution to the task from Prof. Ponnurangam Kumaraguru's [Precog Lab](https://precog.iiit.ac.in/) @IIIT Hyderabad. 
 
 ## Description
-Briefly describe the purpose and goals of your project.
+The [Hateful Memes Challenge](https://hatefulmemeschallenge.com/#download) and Dataset have been developed to advance research in identifying harmful multimodal content, particularly focusing on the challenging task of recognizing multimodal hate speech, which combines different modalities such as text and images. This unique dataset, created by Facebook AI, consists of over 10,000 new multimodal examples, incorporating content licensed from Getty Images to provide a diverse and comprehensive resource for AI researchers.
 
 ## Environment Setup
 
