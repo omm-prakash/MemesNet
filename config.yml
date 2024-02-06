@@ -1,0 +1,36 @@
+## dataset configurations
+dataset_name: 'hateful_memes'
+model_basename: 'memesnet'
+model_folder: 'runs' # name of folder to save model checkpoints while training 
+data_path: 'data' # data folder name
+tokenizer_file: 'tokenizer.json'
+annotation_file: './data/hateful_memes/{name}.jsonl'
+data_list: './data/hateful_memes/{name}.csv'
+memes_data_dir: './data/hateful_memes/' # directory of "hateful_memes" dataset
+dataset_split_ratio: 0.9
+
+## object detection configurations
+obj_seq_len: 39
+num_image_features: 85 # number of feature per object in an image
+
+## model architecture configurations
+num_classes: 2 # number of categories to classify
+classes:
+ - non-toxic
+ - toxic 
+n_single: 1 # number of single modality encoders
+n_cross: 2 # number of cross modality encoders
+d_model: 32 # data feature dimension 
+image_features: 85 # number of feature per object in an image
+dropout: 0 # dropout ratio
+head: 8 # number of heads in attention layer
+
+## training configurations
+batch_size: 4
+lr: 0.0001
+label_smoothing: 0
+epochs: 3
+preload: 'latest' # "latest" to start training from the latest training checkpoint, neither it will start from begining
+validation_step_frequency: 3 # number of epochs after which validation step will be performed
+validation_step_while_training: false # check to validation step, true: validation step during training
+batch_data_while_training: true # true: to get batch wise data metrics while training

@@ -1,0 +1,7 @@
+data/hateful_memes/
+data/yolov3.weights
+aster.pytorch/
+runs/*
+data/tokenizer.json
+garbage.py
+Recruitment_Task.pdf
