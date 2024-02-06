@@ -1,5 +1,6 @@
 # MemesNet
-A Multi-Modality Deep Learning Model To Detect Hateful Memes 
+A Multi-Modality Deep Learning Model To Detect Hateful Memes. The code is submitted as a solution to the task from Prof. Ponnurangam Kumaraguru's [Precog Lab](https://precog.iiit.ac.in/) @IIIT Hyderabad. 
+The [Hateful Memes Challenge](https://hatefulmemeschallenge.com/#download) and Dataset have been developed to advance research in identifying harmful multimodal content, particularly focusing on the challenging task of recognizing multimodal hate speech, which combines different modalities such as text and images. This unique dataset, created by Facebook AI, consists of over 10,000 new multimodal examples, incorporating content licensed from Getty Images to provide a diverse and comprehensive resource for AI researchers.
 
 ## Description
 Briefly describe the purpose and goals of your project.
@@ -42,9 +43,9 @@ Download the dataset from [Hateful Memes Challenge](https://hatefulmemeschalleng
 
 Now the environment is set up, and the dataset is ready for use in the project.
 
-## Usage
+### Usage
 
-### 1. Object Detection
+#### 1. Object Detection
 
 To perform object detection on images using YOLO (You Only Look Once) model, run the following command:
 
@@ -67,7 +68,7 @@ python object_detection.py \
 - `--weight`: Path for YOLO model weight file (default: data/yolov3.weights).
 - `--classes`: Path for COCO class name file (default: data/coco.names).
 
-### 2. Optical Character Recognition (OCR)
+#### 2. Optical Character Recognition (OCR)
 
 To extract text from images using OCR, use the following command:
 
@@ -86,7 +87,7 @@ python ocr.py \
 - `--pick_random`: Select a random image for OCR (default: True).
 - `--plot`: Show the image with extracted text (default: True).
 
-### 3. Training
+#### 3. Training
 
 To initiate the training process with a modified configuration in `config.yml,` execute the following command:
 
@@ -94,9 +95,6 @@ To initiate the training process with a modified configuration in `config.yml,` 
 python train.py
 ```
 Ensure that you have updated the necessary configurations in the `config.yml` file before starting the training process.
-
-## Contributions
-If you'd like to contribute to the project, please follow the guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
