@@ -8,7 +8,7 @@ import argparse
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 warnings.filterwarnings("ignore", category=FutureWarning)
 pipeline = keras_ocr.pipeline.Pipeline()
-
+# np.median()
 def comparator(i,j, location):
     x1, y1 = location[i]
     x2, y2 = location[j]
@@ -51,7 +51,7 @@ def extract_text(args):
         f = os.path.join(args.directory, random.choice(image_files))
     else:
         print('Please pass name of image file or allow random pick of image.')
-    print('\n>> Image location:',f)
+    print('>> Image location:',f)
     print('>> Extracting text from the image..')
     text, locations, image = detect_text(f)
 
